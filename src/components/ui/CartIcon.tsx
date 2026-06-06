@@ -19,6 +19,8 @@ function CartIcon() {
 
   // set RTK state on database change
   useEffect(() => {
+    if (!isSignedIn) return;
+
     async function getInitialCartCount() {
       try {
         const initialCartCount = await fetchCartCountClient();
@@ -31,7 +33,7 @@ function CartIcon() {
 
     getInitialCartCount();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isSignedIn]);
 
   return (
     <div>
