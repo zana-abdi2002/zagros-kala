@@ -8,7 +8,7 @@ export async function getCartItemsFromDB(userId: string) {
   try {
     const result: QueryResult<CartItem> = await db.query(
       `
-SELECT 
+SELECT
     ci.id AS "cartItemId",
     ci.quantity,
     p.id AS "productId",
@@ -16,13 +16,21 @@ SELECT
     p.description,
     p.price,
     p.stock_quantity AS "stockQuantity",
-    (ci.quantity * p.price) AS "lineTotal",
+    ci.quantity * p.price AS "lineTotal",
     pi.image_url AS "imageUrl",
     ci.created_at AS "createdAt",
     ci.updated_at AS "updatedAt"
 FROM cart_items ci
-JOIN products p ON ci.product_id = p.id
-LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = true
+JOIN products p
+    ON ci.product_id = p.id
+LEFT JOIN LATERAL (
+    SELECT image_url
+    FROM product_images
+    WHERE product_id = p.id
+      AND is_primary = true
+    ORDER BY id
+    LIMIT 1
+) pi ON true
 WHERE ci.user_id = $1;`,
       [userId],
     );

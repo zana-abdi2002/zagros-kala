@@ -4,8 +4,8 @@ import "server-only";
 import type { Product } from "../db/databaseSchemas";
 import { getProductById } from "../db/products";
 
-export async function getProduct(productId: UUID): Promise<Product | null> {
-  const getCachedProduct = unstable_cache(
+const getCachedProduct = (productId: UUID) =>
+  unstable_cache(
     async () => {
       const product = await getProductById(productId);
 
@@ -17,5 +17,6 @@ export async function getProduct(productId: UUID): Promise<Product | null> {
     },
   );
 
-  return getCachedProduct();
+export async function getProduct(productId: UUID): Promise<Product | null> {
+  return getCachedProduct(productId)();
 }
